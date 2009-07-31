@@ -20,16 +20,15 @@ module Whitelist
   #     # It also accepts a symbol as the first parameter, and interprets it as a key for params.
   #     whitelist(:foo, :bar)             #=> { :bar => 1 }
   #     whitelist(:foo)                   #=> {}
-  def whitelist(hash, *keys)
-    return {} if hash.nil?
-    return {} if keys.empty?
-    return whitelist(params[hash], *keys) if hash.is_a?(Symbol)
+  def whitelist(spec, hash = params)
+    spec = Array(spec) unless spec.kind_of?(Hash)
 
-    result = Hash.new
-    keys.each do |key|
-      next unless hash.member?(key)
-      result[key] = hash[key]
+    hash.keys.each do |key|
+      hash.delete(key) unless spec.include?(key)
     end
-    result
+
+    spec.each do |key, subspec|
+      whitelist(subspec, hash[key]) if subspec
+    end
   end
 end

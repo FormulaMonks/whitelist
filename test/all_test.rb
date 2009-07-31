@@ -6,32 +6,37 @@ def params
   { :a => 1, :b => 2, :c => { :d => 3 } }
 end
 
-include Whitelist
+class WhitelistTest < Test::Unit::TestCase
+  include Whitelist
 
-class TestWhitelist < Test::Unit::TestCase
-  setup do
-    @hash = { :a => 1, :b => 2, :c => { :d => 3 } }
+  def params
+    @params ||= {:foo => {:bar => 1, :baz => 2, :bars => {:qux => 3}}}
   end
 
-  context "without a whitelist " do
-    should "return an empty hash" do
-      assert_equal Hash.new, whitelist(@hash)
-    end
+  test "simple whitelist" do
+    whitelist(:foo => :bar)
+
+    assert_equal(
+      {:foo => {:bar => 1}},
+      params
+    )
   end
 
-  context "with a nil value as the first parameter" do
-    should "also return an empty hash" do
-      assert_equal Hash.new, whitelist(nil)
-    end
+  test "whitelist with many keys" do
+    whitelist(:foo => [:bar, :baz])
+
+    assert_equal(
+      {:foo => {:bar => 1, :baz => 2}},
+      params
+    )
   end
 
-  context "with a symbol as the first parameter" do
-    should "pull the hash from the params method" do
-      assert_equal @hash[:c], whitelist(:c, :d)
-    end
+  test "whitelist nested" do
+    whitelist(:foo => [:bar, {:bars => :qux}])
 
-    should "return an empty hash if the key is not found" do
-      assert_equal Hash.new, whitelist(:c, :f)
-    end
+    assert_equal(
+      {:foo => {:bar => 1, :bars => {:qux => 3}}},
+      params
+    )
   end
 end
