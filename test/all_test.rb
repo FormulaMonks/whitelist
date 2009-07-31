@@ -20,19 +20,19 @@ class TestBisect < Test::Unit::TestCase
   
   context "with multiple parameters" do
     should "keep a" do
-      assert_equal 1, @hash.bisect([:a, :b])[:a]
+      assert_equal 1, @hash.bisect(:a, :b)[:a]
     end
 
     should "keep b" do
-      assert_equal 2, @hash.bisect([:a, :b])[:b]
+      assert_equal 2, @hash.bisect(:a, :b)[:b]
     end
 
     should "strip c" do
-      assert !@hash.bisect([:a, :b])[:c]
+      assert !@hash.bisect(:a, :b)[:c]
     end
     
     should "strip everything else" do
-      assert_equal 2, @hash.bisect([:a, :b]).size
+      assert_equal 2, @hash.bisect(:a, :b).size
     end
   end
   
@@ -76,5 +76,13 @@ class TestBisect < Test::Unit::TestCase
         assert !@hash.bisect(:foo => { :bar => :baz })[:foo][:bad]
       end
     end
+  end
+  
+  should "be sure all our documentation examples really work" do
+    assert_equal({ :a => 1 }, { :a => 1, :b => 2 }.bisect(:a))
+    assert_equal({ :a => 1, :b => 2 }, { :a => 1, :b => 2, :c => 3 }.bisect(:a, :b))
+    assert_equal({ :c => { :d => 3 } }, { :a => 1, :c => { :d => 3 } }.bisect(:c => :d))
+    assert_equal({ :a => 1, :c => { :e => { :f => 4 } } }, { :a => 1, :b => 2, :c => { :d => 3, :e => { :f => 4 } } }.bisect(:a, { :c => { :e => :f } }))
+    assert_equal({ :c => { :d => 3, :e => { :f => 4 } } }, { :a => 1, :b => 2, :c => { :d => 3, :e => { :f => 4 } } }.bisect({ :c => [ :d, :e ] }))
   end
 end

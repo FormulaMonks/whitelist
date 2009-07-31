@@ -1,30 +1,26 @@
 module Bisect
-  # Whitelist a hash by filtering the provided keys.
+  # Returns a new hash which is the key-based bisection of this hash and the
+  # given collection of keys. That is, it is the original hash with all the
+  # keys not present in the given collection of keys removed.
+  # 
+  # The collection of keys can be a single key, an list of keys, a hash itself,
+  # or a list of hashes and keys. Note that it only does a *key* bisection, so
+  # the hash is more like a cleaner way to express an array of keys.
+  # 
+  # The bisection works recursively.
   #
-  # @overload whitelist hash, :foo, :bar, :baz
-  #   Returns a copy of hash with the keys provided.
+  # @example Different ways of using bisect:
   # 
-  # @overload whitelist :hash, :foo, :bar, :baz
-  #   Returns a copy of params[:hash] with the keys provided.
+  #     { :a => 1, :b => 2 }.bisect(:a)                 #=> { :a => 1 }
+  #     { :a => 1, :b => 2, :c => 3 }.bisect(:a, :b)    #=> { :a => 1, :b => 2 }
+  #     { :a => 1, :c => { :d => 3 } }.bisect(:c => :d) #=> { :c => { :d => 3 } }
+  #     { :a => 1, :b => 2, :c => { :d => 3, :e => { :f => 4 } } }.bisect(:a, { :c => { :e => :f } }) #=> { :a => 1, :c => { :e => { :f => 4 } } }
+  #     { :a => 1, :b => 2, :c => { :d => 3, :e => { :f => 4 } } }.bisect({ :c => [ :d, :e ] })       #=> { :c => { :d => 3, :e => { :f => 4 } } }
   # 
-  # @example Different ways of using whitelist:
-  # 
-  #     params[:foo] = nil
-  #     # Returns an empty hash if the value provided is nil.
-  #     whitelist(params[:foo])           #=> {}
-  #     params[:foo] = { :bar => 1, :baz => 2 }
-  #     # Returns a copy of params[:hash] with the keys provided.
-  #     whitelist(params[:foo], :bar)     #=> { :bar => 1 }
-  #
-  #     # It also accepts a symbol as the first parameter, and interprets it as a key for params.
-  #     whitelist(:foo, :bar)             #=> { :bar => 1 }
-  #     whitelist(:foo)                   #=> {}
-  def bisect(keys)
-    result = Hash.new
-    keys   = [keys] unless keys.is_a?(Array)
-    
+  def bisect(*keys)
+    result = self.class.new    
     keys.each do |key|
-      key.to_a.each{ |k| result[k[0]] = self[k[0]].bisect(k[1]) } if key.is_a?(Hash)
+      key.each{ |k| result[k[0]] = (k[1].is_a?(Hash) ? self[k[0]].bisect(k[1]) : self[k[0]].bisect(*k[1])) } if key.is_a?(Hash)
       next unless member?(key)
       result[key] = self[key]
     end

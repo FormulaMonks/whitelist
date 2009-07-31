@@ -1,27 +1,15 @@
-Whitelist
-=======
+Hash#bisect
+===========
 
-Easy to use filter for parameter hashes.
+Adds a recursive key-based bisection to Hash. This allows you to ignore
+unwanted keys from a Hash.
 
 Description
 -----------
 
-Whitelist helps you filter a parameters hash to get only the values you
-care about.
-
-It's a very common pattern to forbid access to key attributes in models.
-One obvious example is ActiveRecord's use of the attr_accessible
-decorator.
-
-The problem with ActiveRecord's approach is that it assumes you want the
-same restrictions to apply for every context, which is not always the
-case. A common scenario is to have different access levels for different
-kinds of users, or higher restrictions for user generated data and a
-lower barrier for developer generated data.
-
-Whitelist approaches this problem by providing a simple mechanism for
-filtering hashes, with some fair assumptions to abstract recurring
-patterns.
+Hash#bisect allows you to recursively bisect a hash by its keys. It is similar
+to Hash#slice in ActiveSupport except that it works recursively. This can be
+useful for "whitelisting" incoming parameters in a web application.
 
 Usage
 -----
@@ -40,15 +28,42 @@ Usage
     whitelist(:foo, :bar)             #=> { :bar => 1 }
     whitelist(:foo)                   #=> {}
 
+Rails & ActiveRecord
+--------------------
+
+The inspiration for this came from attempting to solve a problem with
+ActiveRecord:
+
+It's a very common pattern to forbid access to key attributes in models.
+One obvious example is ActiveRecord's use of the attr_accessible
+decorator.
+
+The problem with ActiveRecord's approach is that it assumes you want the
+same restrictions to apply for every context, which is not always the
+case. A common scenario is to have different access levels for different
+kinds of users, or higher restrictions for user generated data and a
+lower barrier for developer generated data.
+
+Hash#bisect allows you to recursively filter params at the controller level,
+allowing your controllers to define the context for which parameters they will
+accept.
+
 Installation
 ------------
 
-    $ sudo gem install whitelist
+    $ sudo gem install bisect
+
+Contributors
+------------
+
+Ben Alavi (benalavi)
+Michel Martens (soveran)
+Damian Janowski (djanowski)
 
 License
 -------
 
-Copyright (c) 2009 Ben Alavi
+Copyright (c) 2009 Ben Alavi for Citrusbyte
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation

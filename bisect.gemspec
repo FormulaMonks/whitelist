@@ -1,8 +1,8 @@
 Gem::Specification.new do |s|
   s.name = 'whitelist'
   s.version = '0.0.1'
-  s.summary = %{Easy to use filter for parameter hashes}
-  s.description = %{Whitelist helps you filter a parameters hash to get only the values you care about.}
+  s.summary = %{Adds a recursive key-based bisection to Hash.}
+  s.description = %{Adds a recursive key-based bisection to Hash. This allows you to ignore unwanted keys from a Hash.}
   s.authors = ["Ben Alavi"]
   s.email = ["ben.alavi@citrusbyte.com"]
   s.homepage = "http://github.com/citrusbyte/whitelist"
