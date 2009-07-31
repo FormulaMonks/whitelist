@@ -66,9 +66,9 @@ Installation
 Contributors
 ------------
 
-Ben Alavi (benalavi)
-Michel Martens (soveran)
-Damian Janowski (djanowski)
+* Ben Alavi (benalavi)
+* Michel Martens (soveran)
+* Damian Janowski (djanowski)
 
 License
 -------
