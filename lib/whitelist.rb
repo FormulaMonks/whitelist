@@ -8,15 +8,12 @@ module Whitelist
   #   Returns a copy of params[:hash] with the keys provided.
   # @example Different ways of using whitelist:
   #     params[:foo] = nil
-
   #     # Returns an empty hash if the value provided is nil.
   #     whitelist(params[:foo])           #=> {}
-
   #     params[:foo] = { :bar => 1, :baz => 2 }
-
   #     # Returns a copy of params[:hash] with the keys provided.
   #     whitelist(params[:foo], :bar)     #=> { :bar => 1 }
-
+  #
   #     # It also accepts a symbol as the first parameter, and interprets it as a key for params.
   #     whitelist(:foo, :bar)             #=> { :bar => 1 }
   #     whitelist(:foo)                   #=> {}
@@ -27,6 +24,7 @@ module Whitelist
 
     result = Hash.new
     keys.each do |key|
+      key.each{ |k, v| result[k] = (v.is_a?(Hash) ? whitelist(hash[k], v) : whitelist(hash[k], *v)) } if key.is_a?(Hash)
       next unless hash.member?(key)
       result[key] = hash[key]
     end

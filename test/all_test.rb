@@ -10,7 +10,7 @@ include Whitelist
 
 class TestWhitelist < Test::Unit::TestCase
   setup do
-    @hash = { :a => 1, :b => 2, :c => { :d => 3 } }
+    @hash = { :a => 1, :b => 2, :c => { :d => 3 }, :foo => { :bar => { :baz => 'bang', :bing => 'boom', :bob => 'boo' }, :bad => 'beep' } }
   end
 
   context "without a whitelist " do
@@ -32,6 +32,48 @@ class TestWhitelist < Test::Unit::TestCase
 
     should "return an empty hash if the key is not found" do
       assert_equal Hash.new, whitelist(:c, :f)
+    end
+  end
+  
+  context "when nested" do
+    should "keep bar in first level" do
+      assert whitelist(@hash[:foo], :bar => :baz)[:bar]
+    end
+    
+    should "strip bad in first level" do
+      assert !whitelist(@hash[:foo], :bar => :baz)[:bad]
+    end
+    
+    should "keep baz under bar" do
+      assert_equal 'bang', whitelist(@hash[:foo], :bar => :baz)[:bar][:baz]
+    end
+
+    should "strip bing from under bar" do
+      assert !whitelist(@hash[:foo], :bar => :baz)[:bar][:bing]
+    end
+
+    context "with multiple nested keys" do
+      should "keep baz under bar" do
+        assert_equal 'bang', whitelist(@hash[:foo], :bar => [ :baz, :bob ])[:bar][:baz]
+      end
+
+      should "keep bob under bar" do
+        assert_equal 'boo', whitelist(@hash[:foo], :bar => [ :baz, :bob ])[:bar][:bob]
+      end
+      
+      should "strip bing from under bar" do
+        assert !whitelist(@hash[:foo], :bar => :baz)[:bar][:bing]
+      end
+    end
+    
+    context "when deeply nested" do
+      should "keep baz under bar under foo" do
+        assert_equal 'bang', whitelist(@hash, :foo => { :bar => :baz })[:foo][:bar][:baz]
+      end
+      
+      should "strip bad under foo" do
+        assert !whitelist(@hash, :foo => { :bar => :baz })[:foo][:bad]
+      end
     end
   end
 end
