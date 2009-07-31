@@ -14,19 +14,11 @@ useful for "whitelisting" incoming parameters in a web application.
 Usage
 -----
 
-    params[:foo] = nil
-
-    # Returns an empty hash if the value provided is nil.
-    whitelist(params[:foo])           #=> {}
-
-    params[:foo] = { :bar => 1, :baz => 2 }
-
-    # Returns a copy of params[:hash] with the keys provided.
-    whitelist(params[:foo], :bar)     #=> { :bar => 1 }
-
-    # It also accepts a symbol as the first parameter, and interprets it as a key for params.
-    whitelist(:foo, :bar)             #=> { :bar => 1 }
-    whitelist(:foo)                   #=> {}
+     { :a => 1, :b => 2 }.bisect(:a)                 #=> { :a => 1 }
+     { :a => 1, :b => 2, :c => 3 }.bisect(:a, :b)    #=> { :a => 1, :b => 2 }
+     { :a => 1, :c => { :d => 3 } }.bisect(:c => :d) #=> { :c => { :d => 3 } }
+     { :a => 1, :b => 2, :c => { :d => 3, :e => { :f => 4 } } }.bisect(:a, { :c => { :e => :f } }) #=> { :a => 1, :c => { :e => { :f => 4 } } }
+     { :a => 1, :b => 2, :c => { :d => 3, :e => { :f => 4 } } }.bisect({ :c => [ :d, :e ] })       #=> { :c => { :d => 3, :e => { :f => 4 } } }
 
 Rails & ActiveRecord
 --------------------
@@ -47,6 +39,24 @@ lower barrier for developer generated data.
 Hash#bisect allows you to recursively filter params at the controller level,
 allowing your controllers to define the context for which parameters they will
 accept.
+
+For example:
+
+    @car = Car.new(params[:car].bisect(:color))
+    
+Will strip everything from `params[:car]` except the `:color` attribute
+    
+With nested attributes:
+    
+    @car = Car.new(params[:car].bisect(:color, { :driver_attributes => [ :name, :height ] }))
+    
+Will strip everything from `params[:car]` except `:color` and 
+`:driver_attributes`, as well as stripping everything but `:name` & `:height`
+from `:driver_attributes`.
+
+With deeply nested attributes:
+
+    @car = Car.new(params[:car].bisect(:color, { :drivers_attributes => { '0' => [ :name, :height ] } }))
 
 Installation
 ------------

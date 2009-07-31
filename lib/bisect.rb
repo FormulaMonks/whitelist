@@ -20,7 +20,9 @@ module Bisect
   def bisect(*keys)
     result = self.class.new    
     keys.each do |key|
-      key.each{ |k| result[k[0]] = (k[1].is_a?(Hash) ? self[k[0]].bisect(k[1]) : self[k[0]].bisect(*k[1])) } if key.is_a?(Hash)
+      key.each do |k| 
+        result[k[0]] = (k[1].is_a?(Hash) ? self[k[0]].bisect(k[1]) : self[k[0]].bisect(*k[1]))
+      end if key.is_a?(Hash)
       next unless member?(key)
       result[key] = self[key]
     end
